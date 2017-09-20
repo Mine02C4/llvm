@@ -37,9 +37,9 @@ required_libraries =
  CodeGen
  Core
  MC
- TrsqAsmPrinter
- TrsqDesc
- TrsqInfo
+; TrsqAsmPrinter
+; TrsqDesc
+; TrsqInfo
  SelectionDAG
  Support
  Target
