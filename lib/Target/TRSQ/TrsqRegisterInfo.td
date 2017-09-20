@@ -33,44 +33,6 @@ class TrsqReg<bits<8> Enc, string n> : Register<n> {
 // Trsq CPU Registers
 class TrsqGPRReg<bits<16> Enc, string n> : TrsqReg<Enc, n>;
 
-// Trsq 64-bit CPU Registers
-class Trsq64GPRReg<bits<16> Enc, string n, list<Register> subregs>
-  : TrsqRegWithSubRegs<Enc, n, subregs> {
-  let SubRegIndices = [sub_32];
-}
-
-// Trsq 32-bit FPU Registers
-class FPR<bits<16> Enc, string n> : TrsqReg<Enc, n>;
-
-// Trsq 64-bit (aliased) FPU Registers
-class AFPR<bits<16> Enc, string n, list<Register> subregs>
-  : TrsqRegWithSubRegs<Enc, n, subregs> {
-  let SubRegIndices = [sub_lo, sub_hi];
-  let CoveredBySubRegs = 1;
-}
-
-class AFPR64<bits<16> Enc, string n, list<Register> subregs>
-  : TrsqRegWithSubRegs<Enc, n, subregs> {
-  let SubRegIndices = [sub_lo, sub_hi];
-  let CoveredBySubRegs = 1;
-}
-
-// Trsq 128-bit (aliased) MSA Registers
-class AFPR128<bits<16> Enc, string n, list<Register> subregs>
-  : TrsqRegWithSubRegs<Enc, n, subregs> {
-  let SubRegIndices = [sub_64];
-}
-
-// Accumulator Registers
-class ACCReg<bits<16> Enc, string n, list<Register> subregs>
-  : TrsqRegWithSubRegs<Enc, n, subregs> {
-  let SubRegIndices = [sub_lo, sub_hi];
-  let CoveredBySubRegs = 1;
-}
-
-// Trsq Hardware Registers
-class HWR<bits<16> Enc, string n> : TrsqReg<Enc, n>;
-
 //===----------------------------------------------------------------------===//
 //  Registers
 //===----------------------------------------------------------------------===//
