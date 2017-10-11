@@ -1,4 +1,4 @@
-//===-- MipsCallingConv.td - Calling Conventions for Mips --*- tablegen -*-===//
+//===-- TrsqCallingConv.td - Calling Conventions for Trsq --*- tablegen -*-===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-// This describes the calling conventions for Mips architecture.
+// This describes the calling conventions for Trsq architecture.
 //===----------------------------------------------------------------------===//
 
 /// CCIfSubtarget - Match if the current subtarget has a feature F.
 class CCIfSubtarget<string F, CCAction A, string Invert = "">
     : CCIf<!strconcat(Invert,
-                      "static_cast<const MipsSubtarget&>"
+                      "static_cast<const TrsqSubtarget&>"
 			"(State.getMachineFunction().getSubtarget()).",
                       F),
            A>;
@@ -23,25 +23,25 @@ class CCIfSubtargetNot<string F, CCAction A> : CCIfSubtarget<F, A, "!">;
 /// Match if the original argument (before lowering) was a float.
 /// For example, this is true for i32's that were lowered from soft-float.
 class CCIfOrigArgWasNotFloat<CCAction A>
-    : CCIf<"!static_cast<MipsCCState *>(&State)->WasOriginalArgFloat(ValNo)",
+    : CCIf<"!static_cast<TrsqCCState *>(&State)->WasOriginalArgFloat(ValNo)",
            A>;
 
 /// Match if the original argument (before lowering) was a 128-bit float (i.e.
 /// long double).
 class CCIfOrigArgWasF128<CCAction A>
-    : CCIf<"static_cast<MipsCCState *>(&State)->WasOriginalArgF128(ValNo)", A>;
+    : CCIf<"static_cast<TrsqCCState *>(&State)->WasOriginalArgF128(ValNo)", A>;
 
 /// Match if this specific argument is a vararg.
 /// This is slightly different fro CCIfIsVarArg which matches if any argument is
 /// a vararg.
 class CCIfArgIsVarArg<CCAction A>
-    : CCIf<"!static_cast<MipsCCState *>(&State)->IsCallOperandFixed(ValNo)", A>;
+    : CCIf<"!static_cast<TrsqCCState *>(&State)->IsCallOperandFixed(ValNo)", A>;
 
 
 /// Match if the special calling conv is the specified value.
 class CCIfSpecialCallingConv<string CC, CCAction A>
-    : CCIf<"static_cast<MipsCCState *>(&State)->getSpecialCallingConv() == "
-               "MipsCCState::" # CC, A>;
+    : CCIf<"static_cast<TrsqCCState *>(&State)->getSpecialCallingConv() == "
+               "TrsqCCState::" # CC, A>;
 
 // For soft-float, f128 values are returned in A0_64 rather than V1_64.
 def RetCC_F128SoftFloat : CallingConv<[
@@ -71,10 +71,10 @@ def RetCC_F128 : CallingConv<[
 ]>;
 
 //===----------------------------------------------------------------------===//
-// Mips O32 Calling Convention
+// Trsq O32 Calling Convention
 //===----------------------------------------------------------------------===//
 
-def CC_MipsO32 : CallingConv<[
+def CC_TrsqO32 : CallingConv<[
   // Promote i8/i16 arguments to i32.
   CCIfType<[i1, i8, i16], CCPromoteToType<i32>>,
 
@@ -88,8 +88,8 @@ def CC_MipsO32 : CallingConv<[
 ]>;
 
 // Only the return rules are defined here for O32. The rules for argument
-// passing are defined in MipsISelLowering.cpp.
-def RetCC_MipsO32 : CallingConv<[
+// passing are defined in TrsqISelLowering.cpp.
+def RetCC_TrsqO32 : CallingConv<[
   // Promote i1/i8/i16 return values to i32.
   CCIfType<[i1, i8, i16], CCPromoteToType<i32>>,
 
@@ -105,19 +105,19 @@ def RetCC_MipsO32 : CallingConv<[
   CCIfType<[f64], CCIfSubtargetNot<"isFP64bit()", CCAssignToReg<[D0, D1]>>>
 ]>;
 
-def CC_MipsO32_FP32 : CustomCallingConv;
-def CC_MipsO32_FP64 : CustomCallingConv;
+def CC_TrsqO32_FP32 : CustomCallingConv;
+def CC_TrsqO32_FP64 : CustomCallingConv;
 
-def CC_MipsO32_FP : CallingConv<[
-  CCIfSubtargetNot<"isFP64bit()", CCDelegateTo<CC_MipsO32_FP32>>,
-  CCIfSubtarget<"isFP64bit()", CCDelegateTo<CC_MipsO32_FP64>>
+def CC_TrsqO32_FP : CallingConv<[
+  CCIfSubtargetNot<"isFP64bit()", CCDelegateTo<CC_TrsqO32_FP32>>,
+  CCIfSubtarget<"isFP64bit()", CCDelegateTo<CC_TrsqO32_FP64>>
 ]>;
 
 //===----------------------------------------------------------------------===//
-// Mips N32/64 Calling Convention
+// Trsq N32/64 Calling Convention
 //===----------------------------------------------------------------------===//
 
-def CC_MipsN_SoftFloat : CallingConv<[
+def CC_TrsqN_SoftFloat : CallingConv<[
   CCAssignToRegWithShadow<[A0, A1, A2, A3,
                            T0, T1, T2, T3],
                           [D12_64, D13_64, D14_64, D15_64,
@@ -125,7 +125,7 @@ def CC_MipsN_SoftFloat : CallingConv<[
   CCAssignToStack<4, 8>
 ]>;
 
-def CC_MipsN : CallingConv<[
+def CC_TrsqN : CallingConv<[
   CCIfType<[i8, i16, i32, i64],
       CCIfSubtargetNot<"isLittle()",
           CCIfInReg<CCPromoteToUpperBitsInType<i64>>>>,
@@ -134,7 +134,7 @@ def CC_MipsN : CallingConv<[
   CCIfType<[i8, i16, i32], CCIfOrigArgWasNotFloat<CCPromoteToType<i64>>>,
 
   // The only i32's we have left are soft-float arguments.
-  CCIfSubtarget<"useSoftFloat()", CCIfType<[i32], CCDelegateTo<CC_MipsN_SoftFloat>>>,
+  CCIfSubtarget<"useSoftFloat()", CCIfType<[i32], CCDelegateTo<CC_TrsqN_SoftFloat>>>,
 
   // Integer arguments are passed in integer registers.
   CCIfType<[i64], CCAssignToRegWithShadow<[A0_64, A1_64, A2_64, A3_64,
@@ -161,7 +161,7 @@ def CC_MipsN : CallingConv<[
 
 // N32/64 variable arguments.
 // All arguments are passed in integer registers.
-def CC_MipsN_VarArg : CallingConv<[
+def CC_TrsqN_VarArg : CallingConv<[
   CCIfType<[i8, i16, i32, i64],
       CCIfSubtargetNot<"isLittle()",
           CCIfInReg<CCPromoteToUpperBitsInType<i64>>>>,
@@ -179,7 +179,7 @@ def CC_MipsN_VarArg : CallingConv<[
   CCIfType<[i64, f64], CCAssignToStack<8, 8>>
 ]>;
 
-def RetCC_MipsN : CallingConv<[
+def RetCC_TrsqN : CallingConv<[
   // f128 needs to be handled similarly to f32 and f64. However, f128 is not
   // legal and is lowered to i128 which is further lowered to a pair of i64's.
   // This presents us with a problem for the calling convention since hard-float
@@ -212,9 +212,9 @@ def RetCC_MipsN : CallingConv<[
 ]>;
 
 //===----------------------------------------------------------------------===//
-// Mips FastCC Calling Convention
+// Trsq FastCC Calling Convention
 //===----------------------------------------------------------------------===//
-def CC_MipsO32_FastCC : CallingConv<[
+def CC_TrsqO32_FastCC : CallingConv<[
   // f64 arguments are passed in double-precision floating pointer registers.
   CCIfType<[f64], CCIfSubtargetNot<"isFP64bit()",
                                    CCAssignToReg<[D0, D1, D2, D3, D4, D5, D6,
@@ -235,7 +235,7 @@ def CC_MipsO32_FastCC : CallingConv<[
   CCIfType<[f64], CCAssignToStack<8, 8>>
 ]>;
 
-def CC_MipsN_FastCC : CallingConv<[
+def CC_TrsqN_FastCC : CallingConv<[
   // Integer arguments are passed in integer registers.
   CCIfType<[i64], CCAssignToReg<[A0_64, A1_64, A2_64, A3_64, T0_64, T1_64,
                                  T2_64, T3_64, T4_64, T5_64, T6_64, T7_64,
@@ -252,7 +252,7 @@ def CC_MipsN_FastCC : CallingConv<[
   CCIfType<[i64, f64], CCAssignToStack<8, 8>>
 ]>;
 
-def CC_Mips_FastCC : CallingConv<[
+def CC_Trsq_FastCC : CallingConv<[
   // Handles byval parameters.
   CCIfByVal<CCPassByVal<4, 4>>,
 
@@ -283,39 +283,39 @@ def CC_Mips_FastCC : CallingConv<[
   // Stack parameter slots for i32 and f32 are 32-bit words and 4-byte aligned.
   CCIfType<[i32, f32], CCAssignToStack<4, 4>>,
 
-  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_MipsO32_FastCC>>,
-  CCDelegateTo<CC_MipsN_FastCC>
+  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_TrsqO32_FastCC>>,
+  CCDelegateTo<CC_TrsqN_FastCC>
 ]>;
 
 //===----------------------------------------------------------------------===//
-// Mips Calling Convention Dispatch
+// Trsq Calling Convention Dispatch
 //===----------------------------------------------------------------------===//
 
-def RetCC_Mips : CallingConv<[
-  CCIfSubtarget<"isABI_N32()", CCDelegateTo<RetCC_MipsN>>,
-  CCIfSubtarget<"isABI_N64()", CCDelegateTo<RetCC_MipsN>>,
-  CCDelegateTo<RetCC_MipsO32>
+def RetCC_Trsq : CallingConv<[
+  CCIfSubtarget<"isABI_N32()", CCDelegateTo<RetCC_TrsqN>>,
+  CCIfSubtarget<"isABI_N64()", CCDelegateTo<RetCC_TrsqN>>,
+  CCDelegateTo<RetCC_TrsqO32>
 ]>;
 
-def CC_Mips_ByVal : CallingConv<[
+def CC_Trsq_ByVal : CallingConv<[
   CCIfSubtarget<"isABI_O32()", CCIfByVal<CCPassByVal<4, 4>>>,
   CCIfByVal<CCPassByVal<8, 8>>
 ]>;
 
-def CC_Mips16RetHelper : CallingConv<[
-  CCIfByVal<CCDelegateTo<CC_Mips_ByVal>>,
+def CC_Trsq16RetHelper : CallingConv<[
+  CCIfByVal<CCDelegateTo<CC_Trsq_ByVal>>,
 
   // Integer arguments are passed in integer registers.
   CCIfType<[i32], CCAssignToReg<[V0, V1, A0, A1]>>
 ]>;
 
-def CC_Mips_FixedArg : CallingConv<[
-  // Mips16 needs special handling on some functions.
+def CC_Trsq_FixedArg : CallingConv<[
+  // Trsq16 needs special handling on some functions.
   CCIf<"State.getCallingConv() != CallingConv::Fast",
-      CCIfSpecialCallingConv<"Mips16RetHelperConv",
-           CCDelegateTo<CC_Mips16RetHelper>>>,
+      CCIfSpecialCallingConv<"Trsq16RetHelperConv",
+           CCDelegateTo<CC_Trsq16RetHelper>>>,
 
-  CCIfByVal<CCDelegateTo<CC_Mips_ByVal>>,
+  CCIfByVal<CCDelegateTo<CC_Trsq_ByVal>>,
 
   // f128 needs to be handled similarly to f32 and f64 on hard-float. However,
   // f128 is not legal and is lowered to i128 which is further lowered to a pair
@@ -331,22 +331,22 @@ def CC_Mips_FixedArg : CallingConv<[
       CCIfSubtargetNot<"useSoftFloat()",
           CCIfOrigArgWasF128<CCBitConvertToType<f64>>>>,
 
-  CCIfCC<"CallingConv::Fast", CCDelegateTo<CC_Mips_FastCC>>,
+  CCIfCC<"CallingConv::Fast", CCDelegateTo<CC_Trsq_FastCC>>,
 
-  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_MipsO32_FP>>,
-  CCDelegateTo<CC_MipsN>
+  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_TrsqO32_FP>>,
+  CCDelegateTo<CC_TrsqN>
 ]>;
 
-def CC_Mips_VarArg : CallingConv<[
-  CCIfByVal<CCDelegateTo<CC_Mips_ByVal>>,
+def CC_Trsq_VarArg : CallingConv<[
+  CCIfByVal<CCDelegateTo<CC_Trsq_ByVal>>,
 
-  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_MipsO32_FP>>,
-  CCDelegateTo<CC_MipsN_VarArg>
+  CCIfSubtarget<"isABI_O32()", CCDelegateTo<CC_TrsqO32_FP>>,
+  CCDelegateTo<CC_TrsqN_VarArg>
 ]>;
 
-def CC_Mips : CallingConv<[
-  CCIfVarArg<CCIfArgIsVarArg<CCDelegateTo<CC_Mips_VarArg>>>,
-  CCDelegateTo<CC_Mips_FixedArg>
+def CC_Trsq : CallingConv<[
+  CCIfVarArg<CCIfArgIsVarArg<CCDelegateTo<CC_Trsq_VarArg>>>,
+  CCDelegateTo<CC_Trsq_FixedArg>
 ]>;
 
 //===----------------------------------------------------------------------===//
@@ -375,7 +375,7 @@ def CSR_N32 : CalleeSavedRegs<(add D20_64, D22_64, D24_64, D26_64, D28_64,
 def CSR_N64 : CalleeSavedRegs<(add (sequence "D%u_64", 31, 24), RA_64, FP_64,
                                    GP_64, (sequence "S%u_64", 7, 0))>;
 
-def CSR_Mips16RetHelper :
+def CSR_Trsq16RetHelper :
   CalleeSavedRegs<(add V0, V1, FP,
                    (sequence "A%u", 3, 0), (sequence "S%u", 7, 0),
                    (sequence "D%u", 15, 10))>;

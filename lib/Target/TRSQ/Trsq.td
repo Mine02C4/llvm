@@ -57,10 +57,6 @@ include "TrsqSchedule.td"
 include "TrsqInstrInfo.td"
 include "TrsqCallingConv.td"
 
-// Avoid forward declaration issues.
-//include "TrsqScheduleP5600.td"
-//include "TrsqScheduleGeneric.td"
-
 def TrsqInstrInfo : InstrInfo;
 
 //===----------------------------------------------------------------------===//
