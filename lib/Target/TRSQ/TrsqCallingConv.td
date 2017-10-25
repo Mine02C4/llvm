@@ -9,13 +9,11 @@
 // This describes the calling conventions for Trsq architecture.
 //===----------------------------------------------------------------------===//
 
-/// CCIfSubtarget - Match if the current subtarget has a feature F.
-class CCIfSubtarget<string F, CCAction A, string Invert = "">
-    : CCIf<!strconcat(Invert,
-                      "static_cast<const TrsqSubtarget&>"
-			"(State.getMachineFunction().getSubtarget()).",
-                      F),
-           A>;
+
+def RetCC_Trsq : CallingConv<[
+  // i8 are returned in registers R15B, R14B, R13B, R12B
+  CCIfType<[i8], CCAssignToReg<[R15B, R14B, R13B, R12B]>>
+]>;
 
 // The inverse of CCIfSubtarget
 class CCIfSubtargetNot<string F, CCAction A> : CCIfSubtarget<F, A, "!">;
@@ -211,46 +209,6 @@ def RetCC_TrsqN : CallingConv<[
   CCIfType<[f64], CCAssignToReg<[D0_64, D2_64]>>
 ]>;
 
-//===----------------------------------------------------------------------===//
-// Trsq FastCC Calling Convention
-//===----------------------------------------------------------------------===//
-def CC_TrsqO32_FastCC : CallingConv<[
-  // f64 arguments are passed in double-precision floating pointer registers.
-  CCIfType<[f64], CCIfSubtargetNot<"isFP64bit()",
-                                   CCAssignToReg<[D0, D1, D2, D3, D4, D5, D6,
-                                                  D7, D8, D9]>>>,
-  CCIfType<[f64], CCIfSubtarget<"isFP64bit()", CCIfSubtarget<"useOddSPReg()",
-                                CCAssignToReg<[D0_64, D1_64, D2_64, D3_64,
-                                               D4_64, D5_64, D6_64, D7_64,
-                                               D8_64, D9_64, D10_64, D11_64,
-                                               D12_64, D13_64, D14_64, D15_64,
-                                               D16_64, D17_64, D18_64,
-                                               D19_64]>>>>,
-  CCIfType<[f64], CCIfSubtarget<"isFP64bit()", CCIfSubtarget<"noOddSPReg()",
-                                CCAssignToReg<[D0_64, D2_64, D4_64, D6_64,
-                                               D8_64, D10_64, D12_64, D14_64,
-                                               D16_64, D18_64]>>>>,
-
-  // Stack parameter slots for f64 are 64-bit doublewords and 8-byte aligned.
-  CCIfType<[f64], CCAssignToStack<8, 8>>
-]>;
-
-def CC_TrsqN_FastCC : CallingConv<[
-  // Integer arguments are passed in integer registers.
-  CCIfType<[i64], CCAssignToReg<[A0_64, A1_64, A2_64, A3_64, T0_64, T1_64,
-                                 T2_64, T3_64, T4_64, T5_64, T6_64, T7_64,
-                                 T8_64, V1_64]>>,
-
-  // f64 arguments are passed in double-precision floating pointer registers.
-  CCIfType<[f64], CCAssignToReg<[D0_64, D1_64, D2_64, D3_64, D4_64, D5_64,
-                                 D6_64, D7_64, D8_64, D9_64, D10_64, D11_64,
-                                 D12_64, D13_64, D14_64, D15_64, D16_64, D17_64,
-                                 D18_64, D19_64]>>,
-
-  // Stack parameter slots for i64 and f64 are 64-bit doublewords and
-  // 8-byte aligned.
-  CCIfType<[i64, f64], CCAssignToStack<8, 8>>
-]>;
 
 def CC_Trsq_FastCC : CallingConv<[
   // Handles byval parameters.
