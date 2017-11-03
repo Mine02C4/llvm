@@ -10,17 +10,6 @@
 //===----------------------------------------------------------------------===//
 //  Declarations that describe the TRSQ register file
 //===----------------------------------------------------------------------===//
-let Namespace = "Trsq" in {
-def sub_32     : SubRegIndex<32>;
-def sub_64     : SubRegIndex<64>;
-def sub_lo     : SubRegIndex<32>;
-def sub_hi     : SubRegIndex<32, 32>;
-def sub_dsp16_19 : SubRegIndex<4, 16>;
-def sub_dsp20    : SubRegIndex<1, 20>;
-def sub_dsp21    : SubRegIndex<1, 21>;
-def sub_dsp22    : SubRegIndex<1, 22>;
-def sub_dsp23    : SubRegIndex<1, 23>;
-}
 
 class Unallocatable {
   bit isAllocatable = 0;
@@ -40,6 +29,14 @@ class TrsqGPRReg<bits<16> Enc, string n> : TrsqReg<Enc, n>;
 let Namespace = "Trsq" in {
   // General Purpose Registers
   def W0 : TrsqReg< 0, "W0">, DwarfRegNum<[0]>;
+  def R0 : TrsqReg< 0, "R0">, DwarfRegNum<[1]>;
+  def R1 : TrsqReg< 0, "R1">, DwarfRegNum<[2]>;
+  def R2 : TrsqReg< 0, "R2">, DwarfRegNum<[3]>;
+  def R3 : TrsqReg< 0, "R3">, DwarfRegNum<[4]>;
+  def R4 : TrsqReg< 0, "R4">, DwarfRegNum<[5]>;
+  def R5 : TrsqReg< 0, "R5">, DwarfRegNum<[6]>;
+  def R6 : TrsqReg< 0, "R6">, DwarfRegNum<[7]>;
+  def R7 : TrsqReg< 0, "R7">, DwarfRegNum<[8]>;
 }
 
 //===----------------------------------------------------------------------===//
@@ -48,6 +45,8 @@ let Namespace = "Trsq" in {
 
 class TrsqRegs : RegisterClass<"Trsq", [i8], 8, (add
     // Working Register
-    W0
+    W0,
+    // SRAM Register
+    R0, R1, R2, R3, R4, R5, R6, R7
 )>
 
