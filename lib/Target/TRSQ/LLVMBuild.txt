@@ -16,16 +16,16 @@
 ;===------------------------------------------------------------------------===;
 
 [common]
-subdirectories = AsmParser Disassembler InstPrinter MCTargetDesc TargetInfo
+;subdirectories = AsmParser Disassembler InstPrinter MCTargetDesc TargetInfo
 
 [component_0]
 type = TargetGroup
 name = Trsq
 parent = Target
-has_asmparser = 1
-has_asmprinter = 1
+has_asmparser = 0
+has_asmprinter = 0
 has_disassembler = 0
-has_jit = 1
+has_jit = 0
 
 [component_1]
 type = Library
