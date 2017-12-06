@@ -335,6 +335,7 @@ set(LLVM_ALL_TARGETS
   RISCV
   Sparc
   SystemZ
+  Trsq
   X86
   XCore
   )
