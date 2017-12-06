@@ -1,4 +1,4 @@
-;===- ./lib/Target/Trsq/LLVMBuild.txt --------------------------*- Conf -*--===;
+;===- ./lib/Target/Trsq/TargetInfo/LLVMBuild.txt -------------*- Conf -*--===;
 ;
 ;                     The LLVM Compiler Infrastructure
 ;
@@ -15,32 +15,9 @@
 ;
 ;===------------------------------------------------------------------------===;
 
-[common]
-subdirectories = TargetInfo
-;AsmParser Disassembler InstPrinter MCTargetDesc
-
 [component_0]
-type = TargetGroup
-name = Trsq
-parent = Target
-has_asmparser = 0
-has_asmprinter = 1
-has_disassembler = 0
-has_jit = 0
-
-[component_1]
 type = Library
-name = TrsqCodeGen
+name = TrsqInfo
 parent = Trsq
-required_libraries =
- AsmPrinter
- CodeGen
- Core
- MC
-; TrsqAsmPrinter
-; TrsqDesc
- TrsqInfo
- SelectionDAG
- Support
- Target
+required_libraries = Support
 add_to_library_groups = Trsq
