@@ -23,7 +23,7 @@ type = TargetGroup
 name = Trsq
 parent = Target
 has_asmparser = 0
-has_asmprinter = 0
+has_asmprinter = 1
 has_disassembler = 0
 has_jit = 0
 
@@ -32,7 +32,6 @@ type = Library
 name = TrsqCodeGen
 parent = Trsq
 required_libraries =
- Analysis
  AsmPrinter
  CodeGen
  Core

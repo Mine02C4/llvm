@@ -7,35 +7,75 @@
 //
 //===----------------------------------------------------------------------===//
 
-//===----------------------------------------------------------------------===//
-//  Describe MIPS instructions format
-//
-//  CPU INSTRUCTION FORMATS
-//
-//  opcode  - operation code.
-//  rs      - src reg.
-//  rt      - dst reg (on a 2 regs instr) or src reg (on a 3 reg instr).
-//  rd      - dst reg, only used on 3 regs instr.
-//  shamt   - only used on shift instructions, contains the shift amount.
-//  funct   - combined with opcode field give us an operation code.
-//
-//===----------------------------------------------------------------------===//
-
-// Format specifies the encoding used by the instruction.  This is part of the
-// ad-hoc solution used to emit machine instruction encodings by our machine
-// code emitter.
-class Format<bits<4> val> {
-  bits<4> Value = val;
+class Format<bits<3> val> {
+  bits<3> Value = val;
 }
 
 def Pseudo    : Format<0>;
-def FrmR      : Format<1>;
-def FrmI      : Format<2>;
-def FrmJ      : Format<3>;
-def FrmFR     : Format<4>;
-def FrmFI     : Format<5>;
-def FrmOther  : Format<6>; // Instruction w/ a custom format
+def FormFile  : Format<1>;
+def FormBit   : Format<2>;
+def FormCtrl  : Format<3>;
+def FormOther : Format<4>; // Instruction w/ a custom format
 
+class TrsqInst<dag outs, dag ins, string asmstr, list<dag> pattern, InstrItinClass itin, Format f>
+  : Instruction
+{
+  field bits<16> Inst;
+  Format Form = f;
+  let Namespace = "Trsq";
+  let Size = 1;
+  let OutOperandList = outs;
+  let InOperandList = ins;
+  let AsmString = asmstr;
+  let Pattern = pattern;
+  let Itinerary = itin;
+
+  bits<3> FormBits = Form.Value;
+  let DecoderNamespace = "Trsq";
+
+  field bits<8> SoftFail = 0;
+}
+
+class TrsqInstFormFile<bits<8> op, dag outs, dag ins, string asmstr, list<dag> pattern, InstrItinClass itin>
+  : TrsqInst<outs, ins, asmstr, pattern, itin, FormFile>
+{
+  bits<8> file;
+  let Inst{15-8} = op;
+  let Inst{7-0} = file;
+}
+
+class TrsqInstFormBit<bits<5> op, dag outs, dag ins, string asmstr, list<dag> pattern, InstrItinClass itin>
+  : TrsqInst<outs, ins, asmstr, pattern, itin, FormBit>
+{
+  bits<8> file;
+  bits<3> bit;
+  let Inst{15-11} = op;
+  let Inst{10-8} = bit;
+  let Inst{7-0} = file;
+}
+
+class TrsqInstFormCtrl<bits<16> op, dag outs, dag ins, string asmstr, list<dag> pattern, InstrItinClass itin>
+  : TrsqInst<outs, ins, asmstr, pattern, itin, FormCtrl>
+{
+  let Inst = op;
+}
+
+// Trsq Pseudo Instructions Format
+class TrsqPseudo<dag outs, dag ins, list<dag> pattern> :
+  TrsqInst<outs, ins, "", pattern, IICPseudo, Pseudo> {
+  let isCodeGenOnly = 1;
+  let isPseudo = 1;
+}
+
+class ArithLogicInst<bits<8> op, string asmstr, SDNode OpNode, InstrItinClass itin, RegisterClass RC>
+  : TrsqInstFormFile<op, (outs RC:$wr), (ins RC:$ra, RC:$wr), !strconcat(asmstr, " $ra"),
+    [(set RC:$wr, (OpNode RC:$ra, RC:$wr))], itin>
+{
+}
+def ADD : ArithLogicInst<0x20, "ADD", add, IICAlu, CPURegs>;
+def SUB : ArithLogicInst<0x21, "SUB", sub, IICAlu, CPURegs>;
+
+//------
 class MMRel;
 
 def Std2MicroTrsq : InstrMapping {
@@ -125,13 +165,6 @@ class InstSE<dag outs, dag ins, string asmstr, list<dag> pattern,
   string Arch;
 }
 
-// Trsq Pseudo Instructions Format
-class TrsqPseudo<dag outs, dag ins, list<dag> pattern,
-                 InstrItinClass itin = IIPseudo> :
-  TrsqInst<outs, ins, "", pattern, itin, Pseudo> {
-  let isCodeGenOnly = 1;
-  let isPseudo = 1;
-}
 
 // Trsq32/64 Pseudo Instruction Format
 class PseudoSE<dag outs, dag ins, list<dag> pattern,

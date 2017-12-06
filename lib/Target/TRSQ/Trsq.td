@@ -68,31 +68,8 @@ def TrsqInstrInfo : InstrInfo;
 // Trsq processors supported.
 //===----------------------------------------------------------------------===//
 
-def ImplP5600 : SubtargetFeature<"p5600", "ProcImpl",
-                                 "TrsqSubtarget::CPU::P5600",
-                                 "The P5600 Processor", [FeatureTrsq32r5]>;
+def : Processor<"trsq8", TrsqGenericItineraries, []>;
 
-class Proc<string Name, list<SubtargetFeature> Features>
- : ProcessorModel<Name, TrsqGenericModel, Features>;
-
-def : Proc<"mips1", [FeatureTrsq1]>;
-def : Proc<"mips2", [FeatureTrsq2]>;
-def : Proc<"mips32", [FeatureTrsq32]>;
-def : Proc<"mips32r2", [FeatureTrsq32r2]>;
-def : Proc<"mips32r3", [FeatureTrsq32r3]>;
-def : Proc<"mips32r5", [FeatureTrsq32r5]>;
-def : Proc<"mips32r6", [FeatureTrsq32r6]>;
-
-def : Proc<"mips3", [FeatureTrsq3]>;
-def : Proc<"mips4", [FeatureTrsq4]>;
-def : Proc<"mips5", [FeatureTrsq5]>;
-def : Proc<"mips64", [FeatureTrsq64]>;
-def : Proc<"mips64r2", [FeatureTrsq64r2]>;
-def : Proc<"mips64r3", [FeatureTrsq64r3]>;
-def : Proc<"mips64r5", [FeatureTrsq64r5]>;
-def : Proc<"mips64r6", [FeatureTrsq64r6]>;
-def : Proc<"octeon", [FeatureTrsq64r2, FeatureCnTrsq]>;
-def : ProcessorModel<"p5600", TrsqP5600Model, [ImplP5600]>;
 
 def TrsqAsmParser : AsmParser {
   let ShouldEmitMatchRegisterName = 0;
@@ -105,8 +82,12 @@ def TrsqAsmParserVariant : AsmParserVariant {
   string RegisterPrefix = "$";
 }
 
+def TrsqAsmWriter : AsmWriter {
+  string AsmWriterClassName = "InstPrinter";
+  bit isMCAsmWriter = 1;
+}
+
 def Trsq : Target {
   let InstructionSet = TrsqInstrInfo;
-  let AssemblyParsers = [TrsqAsmParser];
-  let AssemblyParserVariants = [TrsqAsmParserVariant];
+  let AssemblyWriters = [TrsqAsmWriter];
 }
