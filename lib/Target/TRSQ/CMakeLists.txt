@@ -14,6 +14,6 @@ add_llvm_target(TrsqCodeGen
   )
 
 #add_subdirectory(InstPrinter)
-#add_subdirectory(TargetInfo)
+add_subdirectory(TargetInfo)
 #add_subdirectory(MCTargetDesc)
 
