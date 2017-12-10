@@ -16,7 +16,7 @@
 ;===------------------------------------------------------------------------===;
 
 [common]
-subdirectories = TargetInfo
+subdirectories = TargetInfo InstPrinter
 ;AsmParser Disassembler InstPrinter MCTargetDesc
 
 [component_0]
@@ -37,7 +37,7 @@ required_libraries =
  CodeGen
  Core
  MC
-; TrsqAsmPrinter
+ TrsqAsmPrinter
 ; TrsqDesc
  TrsqInfo
  SelectionDAG

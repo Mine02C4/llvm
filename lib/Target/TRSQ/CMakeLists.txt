@@ -9,13 +9,17 @@ tablegen(LLVM TrsqGenSubtargetInfo.inc -gen-subtarget)
 add_public_tablegen_target(TrsqCommonTableGen)
 
 add_llvm_target(TrsqCodeGen
+  TrsqISelDAGToDAG.cpp
+  TrsqISelLowering.cpp
   TrsqInstrInfo.cpp
+  TrsqFrameLowering.cpp
+  TrsqMachineFunctionInfo.cpp
   TrsqRegisterInfo.cpp
   TrsqSubtarget.cpp
   TrsqTargetMachine.cpp
   )
 
-#add_subdirectory(InstPrinter)
+add_subdirectory(InstPrinter)
 add_subdirectory(TargetInfo)
 #add_subdirectory(MCTargetDesc)
 
